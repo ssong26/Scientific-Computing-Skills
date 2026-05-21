@@ -1,6 +1,4 @@
-Here's the markdown with proper GitHub-friendly LaTeX (no `begin:math:text` placeholders, clean display/inline math, and no ambiguous line breaks inside math environments).
 
-```markdown
 # Derivation of the Dual-Integral Equation Solver for a Subsurface Parallel Crack
 
 This note summarizes the derivation used in the numerical solver for a pressurized crack parallel to a stress-free surface in an elastic half-plane.
