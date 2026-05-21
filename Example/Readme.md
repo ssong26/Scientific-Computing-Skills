@@ -75,7 +75,17 @@ q_2/\xi,\ q_3/\xi \to 0.
 $$
 
 ---
-
+# Reference 
+@article{itou1994stress,
+  title={Stress intensity factors around a crack parallel to a free surface of a half-plane},
+  author={Itou, Shouetsu},
+  journal={International journal of fracture},
+  volume={67},
+  number={2},
+  pages={179--185},
+  year={1994},
+  publisher={Springer}
+}
 # Installation
 
 ```bash
