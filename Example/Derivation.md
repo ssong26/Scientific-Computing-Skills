@@ -1,44 +1,40 @@
+# Subsurface Parallel Crack: Derivation Notes
 
-# Derivation of the Dual-Integral Equation Solver for a Subsurface Parallel Crack
+This document summarizes the derivation used in the numerical solver for a pressurized crack parallel to a free surface in an elastic half-plane.
 
-This note summarizes the derivation used in the numerical solver for a pressurized crack parallel to a stress-free surface in an elastic half-plane.
-
-The derivation reconstructs the Fourier-domain kernel functions
+The goal is to reconstruct the dual-integral kernels
 
 $$
 q_1(\xi),\ q_2(\xi),\ q_3(\xi),\ q_4(\xi)
 $$
 
-used in the dual-integral equations of Itou (1994).
-
-The purpose of this document is not to reproduce the original paper line-by-line, but to provide a transparent derivation chain suitable for numerical implementation and auditing.
+from Fourier-domain elasticity operators.
 
 ---
 
 # 1. Geometry
 
-We consider a crack of length
+We consider:
 
+- free surface:
+  
 $$
-2a
-$$
-
-located at depth
-
-$$
-h
+y=0
 $$
 
-below a free surface.
+- crack plane:
 
-The coordinate system is:
+$$
+y=-h
+$$
 
-- free surface: $y=0$
-- crack plane: $y=-h$
+- crack interval:
 
-The crack occupies $|x| < a$.
+$$
+|x|<a
+$$
 
-The geometry is divided into two regions:
+The geometry is divided into two regions.
 
 ## Region 1: finite layer
 
@@ -59,19 +55,31 @@ $$
 At the free surface:
 
 $$
-\sigma_{xy}^{(1)}(x,0)=0,\qquad \sigma_{yy}^{(1)}(x,0)=0.
+\sigma_{xy}^{(1)}(x,0)=0
 $$
 
-At the bonded interface outside the crack:
+$$
+\sigma_{yy}^{(1)}(x,0)=0
+$$
+
+Outside the crack:
 
 $$
-u^{(1)}=u^{(2)},\qquad v^{(1)}=v^{(2)}.
+u^{(1)}=u^{(2)}
+$$
+
+$$
+v^{(1)}=v^{(2)}
 $$
 
 Inside the crack:
 
 $$
-\sigma_{yy}=-p,\qquad \sigma_{xy}=0.
+\sigma_{yy}=-p
+$$
+
+$$
+\sigma_{xy}=0
 $$
 
 ---
@@ -81,28 +89,43 @@ $$
 Forward transform:
 
 $$
-\widehat{f}(\xi) = \int_{-\infty}^{\infty} f(x) e^{i\xi x} \, dx
+\widehat{f}(\xi)
+=
+\int_{-\infty}^{\infty}
+f(x)e^{i\xi x}dx
 $$
 
 Inverse transform:
 
 $$
-f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} \widehat{f}(\xi) e^{-i\xi x} \, d\xi
+f(x)
+=
+\frac{1}{2\pi}
+\int_{-\infty}^{\infty}
+\widehat{f}(\xi)e^{-i\xi x}d\xi
 $$
 
-Under this convention:
+Derivative mapping:
 
 $$
-\frac{\partial}{\partial x} \;\leftrightarrow\; -i\xi
+\frac{\partial}{\partial x}
+\leftrightarrow
+-i\xi
 $$
 
 ---
 
 # 4. Full-plane calibration limit
 
-Before solving the layered problem, the deep-interface limit $h\to\infty$ is used to calibrate signs and phases.
+Before solving the layered system, the deep-interface limit
 
-For an isolated crack plane in an infinite medium:
+$$
+h\to\infty
+$$
+
+is used to fix signs and phases.
+
+The full-plane traction-displacement relation becomes
 
 $$
 \begin{bmatrix}
@@ -111,62 +134,100 @@ $$
 \end{bmatrix}
 =
 -\frac{2\mu|\xi|}{\kappa+1}
-\mathbf{I}
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}
 \begin{bmatrix}
 \widehat{\Delta U} \\
 \widehat{\Delta V}
 \end{bmatrix}
 $$
 
-with
+where
 
 $$
-\kappa = \frac{3-\nu}{1+\nu}
+\kappa=\frac{3-\nu}{1+\nu}
 $$
 
-for plane stress. This provides the asymptotic reference kernel.
+for plane stress.
 
 ---
 
 # 5. Crack-opening expansions
 
-The displacement jumps are expanded as bounded basis functions which automatically vanish outside the crack interval.
+The crack-opening jumps are expanded using bounded basis functions.
 
 ## Normal opening
 
 $$
-\Delta V(x) = \frac{1}{\pi} \sum_{n=1}^{N} c_n \cos\left[(2n-1)\sin^{-1}(x/a)\right]
+\Delta V(x)
+=
+\frac{1}{\pi}
+\sum_{n=1}^{N}
+c_n
+\cos\left[
+(2n-1)\sin^{-1}(x/a)
+\right]
 $$
 
-This basis is even in $x$.
+This basis is even in $begin:math:text$x$end:math:text$.
+
+---
 
 ## Tangential opening
 
 $$
-\Delta U(x) = \frac{1}{\pi} \sum_{n=1}^{N} d_n \sin\left[2n\sin^{-1}(x/a)\right]
+\Delta U(x)
+=
+\frac{1}{\pi}
+\sum_{n=1}^{N}
+d_n
+\sin\left[
+2n\sin^{-1}(x/a)
+\right]
 $$
 
-This basis is odd in $x$.
+This basis is odd in $begin:math:text$x$end:math:text$.
 
 ---
 
 # 6. Fourier transforms of the crack openings
 
-Using $x = a\sin\theta$, $dx = a\cos\theta\, d\theta$, the Fourier transforms reduce to Bessel-function forms.
-
-## Normal jump
+Using the substitution
 
 $$
-\widehat{\Delta V}(\xi) = \sum_{n=1}^{N} c_n \frac{2n-1}{\xi} J_{2n-1}(a\xi)
+x=a\sin\theta
 $$
 
-## Tangential jump
+the Fourier transforms reduce to Bessel-function forms.
+
+---
+
+## Normal jump transform
 
 $$
-\widehat{\Delta U}(\xi) = i \sum_{n=1}^{N} d_n \frac{2n}{\xi} J_{2n}(a\xi)
+\widehat{\Delta V}(\xi)
+=
+\sum_{n=1}^{N}
+c_n
+\frac{2n-1}{\xi}
+J_{2n-1}(a\xi)
 $$
 
-These are the key spectral representations used in the dual-integral equations.
+---
+
+## Tangential jump transform
+
+$$
+\widehat{\Delta U}(\xi)
+=
+i
+\sum_{n=1}^{N}
+d_n
+\frac{2n}{\xi}
+J_{2n}(a\xi)
+$$
 
 ---
 
@@ -187,21 +248,34 @@ $$
 \end{bmatrix}
 $$
 
-where
+with
 
 $$
-\mathbf{C} = \mathbf{C}^{(1)} - \mathbf{C}^{(2)}
+\mathbf{C}
+=
+\mathbf{C}^{(1)}
+-
+\mathbf{C}^{(2)}
 $$
 
-is the difference between the finite-layer compliance and the lower half‑space compliance.
+where:
 
-The stiffness matrix is then $\mathbf{K} = \mathbf{C}^{-1}$.
+- $begin:math:text$ \\mathbf\{C\}\^\{\(1\)\} $end:math:text$ is the finite-layer compliance
+- $begin:math:text$ \\mathbf\{C\}\^\{\(2\)\} $end:math:text$ is the lower half-space compliance
+
+The stiffness operator is
+
+$$
+\mathbf{K}
+=
+\mathbf{C}^{-1}
+$$
 
 ---
 
-# 8. Fourier-domain traction kernels
+# 8. Fourier-domain stiffness kernels
 
-The stiffness relation becomes
+The transform-domain relation becomes
 
 $$
 \begin{bmatrix}
@@ -219,64 +293,87 @@ $$
 with
 
 $$
-\mathbf{K} =
+\mathbf{K}
+=
 \begin{bmatrix}
 K_{11} & K_{12} \\
 K_{21} & K_{22}
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
-Substituting the Bessel expansions produces the dual-integral structure.
+Substituting the Bessel expansions produces the dual-integral equations.
 
 ---
 
-# 9. Identification of $q_1$, $q_2$, $q_3$, $q_4$
+# 9. Identification of q1, q2, q3, q4
 
-Matching the resulting inverse Fourier integrals to the standard dual-integral form gives:
+Matching the inverse Fourier integrals gives:
 
 $$
-q_1(\xi) = K_{22}(\xi),\qquad
-q_2(\xi) = i K_{21}(\xi),\qquad
-q_3(\xi) = -i K_{12}(\xi),\qquad
-q_4(\xi) = K_{11}(\xi)
+q_1(\xi)=K_{22}(\xi)
 $$
 
-for the stress‑component convention. If outward traction conventions are used instead, the overall signs reverse accordingly.
+$$
+q_2(\xi)=iK_{21}(\xi)
+$$
+
+$$
+q_3(\xi)=-iK_{12}(\xi)
+$$
+
+$$
+q_4(\xi)=K_{11}(\xi)
+$$
+
+for the stress-component convention.
 
 ---
 
 # 10. High-frequency asymptotics
 
-The large‑$\xi$ asymptotics are essential for stable numerical quadrature.
-
 The kernels satisfy:
 
 $$
-\frac{q_1}{\xi} \to -\frac14,\qquad
-\frac{q_4}{\xi} \to -\frac14,
+\frac{q_1}{\xi}\to -\frac14
+$$
+
+$$
+\frac{q_4}{\xi}\to -\frac14
 $$
 
 while
 
 $$
-\frac{q_2}{\xi},\ \frac{q_3}{\xi} \to 0.
+\frac{q_2}{\xi}\to 0
 $$
 
-These asymptotic pieces are subtracted analytically before numerical integration, which dramatically improves convergence.
+$$
+\frac{q_3}{\xi}\to 0
+$$
+
+These asymptotic parts are subtracted analytically before quadrature.
+
+This significantly improves numerical stability.
 
 ---
 
 # 11. Numerical method
 
-The final numerical system is constructed using:
+The numerical solver uses:
 
-- weighted least squares,
-- Schmidt/Galerkin projection,
-- QR‑based stabilization,
-- asymptotic subtraction,
-- residual verification.
+- weighted least squares
+- Schmidt/Galerkin projection
+- QR stabilization
+- asymptotic subtraction
+- residual verification
 
-The unknowns are $c_n$ and $d_n$. Once solved, the stress intensity factors are extracted from the high‑frequency behavior of the coefficients.
+The unknown coefficients are
+
+$$
+c_n,\ d_n
+$$
+
+The stress intensity factors are extracted from the high-frequency coefficient behavior.
 
 ---
 
@@ -284,40 +381,32 @@ The unknowns are $c_n$ and $d_n$. Once solved, the stress intensity factors are 
 
 The implementation is verified using:
 
-## 1. Published benchmark comparison
-
-For example, $h/a = 0.1,\ \nu = 0.3$ compared against Itou’s published tables.
-
-## 2. Residual verification
-
-Boundary‑condition residuals are checked:
-
-- inside the crack,
-- near the crack tip,
-- away from the tip.
-
-## 3. Convergence with basis order
-
-Solutions are checked for convergence as $N \to N+2$.
-
-## 4. Kernel asymptotics
-
-The numerical kernels must recover $q_1/\xi \to -1/4$ and $q_4/\xi \to -1/4$.
+1. comparison against published Itou benchmark values
+2. residual checks inside the crack
+3. convergence with basis order $begin:math:text$N$end:math:text$
+4. kernel asymptotics
+5. condition-number monitoring
 
 ---
 
 # 13. Thin-layer warning
 
-For very small $h/a$ the current basis becomes increasingly ill‑conditioned because the upper ligament behaves more like a thin plate.
+For very small
 
-Indicators of failure include:
+$$
+h/a
+$$
 
-- exploding condition number,
-- non‑convergent $K_I, K_{II}$,
-- large weighted residuals,
-- unstable near‑tip errors.
+the current basis becomes increasingly ill-conditioned.
 
-In that regime, an asymptotic thin‑layer basis should be introduced.
+Warning signs include:
+
+- exploding condition number
+- unstable $begin:math:text$K\_I\,K\_\{II\}$end:math:text$
+- large residuals
+- non-convergent basis sweep
+
+In this regime, an asymptotic thin-layer basis is recommended.
 
 ---
 
@@ -325,18 +414,17 @@ In that regime, an asymptotic thin‑layer basis should be introduced.
 
 This repository is intended as:
 
-- a derivation audit trail,
-- a research‑grade verification implementation,
-- and an example of AI‑assisted continuum‑mechanics reconstruction.
+- a derivation audit trail
+- a computational fracture-mechanics verification project
+- an example of AI-assisted symbolic reconstruction
 
-The derivation was developed iteratively through:
+The implementation was reconstructed independently through:
 
-1. symbolic operator reconstruction,
-2. asymptotic consistency checks,
-3. numerical kernel verification,
-4. and independent cross‑auditing of sign conventions and limits.
+1. operator derivation
+2. asymptotic checks
+3. kernel verification
+4. numerical convergence
+5. benchmark comparison
+6. sign-convention auditing
 
-The final solver is therefore not a direct transcription of the original paper, but an independently reconstructed implementation constrained by all known consistency conditions.
-```
-
-Just copy this block into your `.md` file – GitHub will render the math correctly without “抽风” (weird rendering).
+rather than by directly copying the original paper derivation.
